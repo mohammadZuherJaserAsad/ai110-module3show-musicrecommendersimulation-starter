@@ -108,9 +108,82 @@ pytest
 
 ## Experiments You Tried
 
-I tested the system with a pop, happy, high-energy profile and saw that songs like **Sunrise City** and **Rooftop Lights** ranked near the top, which matched my expectations. I also thought about how a lofi, chill, acoustic listener would likely prefer songs such as **Library Rain** and **Midnight Coding**, because those tracks are lower energy and more acoustic.
+I tested the system with five profiles: **High-Energy Pop**, **Chill Lofi**, **Deep Intense Rock**, and two edge cases — a conflicting "Sad but Hype" electronic profile and a niche "Acoustic Classical" profile. Here are the results for each:
 
-I considered changing the weights to make mood or acousticness matter more, but I kept genre as the strongest feature because genre is usually the broadest signal of user taste. If I lowered the genre weight too much, the system could start ranking songs with the right energy but the wrong style too high.
+### Profile 1 — High-Energy Pop
+```
+genre=pop | mood=happy | energy=0.8 | acoustic=False
+
+#1  Sunrise City by Neon Echo        Score: 94.60  [genre match], [mood match], [very close energy], [acoustic preference match]
+#2  Gym Hero by Max Pulse             Score: 67.40  [genre match], [very close energy], [acoustic preference match]
+#3  Rooftop Lights by Indigo Parade   Score: 54.20  [mood match], [very close energy], [acoustic preference match]
+#4  Streetlight Hustle by DAZE        Score: 29.80  [very close energy], [acoustic preference match]
+#5  Night Drive Loop by Neon Echo     Score: 29.00  [very close energy], [acoustic preference match]
+```
+
+### Profile 2 — Chill Lofi
+```
+genre=lofi | mood=chill | energy=0.4 | acoustic=True
+
+#1  Midnight Coding by LoRoom         Score: 94.60  [genre match], [mood match], [very close energy], [acoustic preference match]
+#2  Library Rain by Paper Lanterns    Score: 94.00  [genre match], [mood match], [very close energy], [acoustic preference match]
+#3  Focus Flow by LoRoom              Score: 70.00  [genre match], [very close energy], [acoustic preference match]
+#4  Spacewalk Thoughts by Orbit Bloom Score: 52.60  [mood match], [very close energy], [acoustic preference match]
+#5  Monsoon Letters by Arya Sen       Score: 29.80  [very close energy], [acoustic preference match]
+```
+
+### Profile 3 — Deep Intense Rock
+```
+genre=rock | mood=intense | energy=0.9 | acoustic=False
+
+#1  Storm Runner by Voltline          Score: 94.80  [genre match], [mood match], [very close energy], [acoustic preference match]
+#2  Gym Hero by Max Pulse             Score: 54.40  [mood match], [very close energy], [acoustic preference match]
+#3  Iron Cathedral by Blackvein       Score: 53.60  [mood match], [very close energy], [acoustic preference match]
+#4  Wildfire Dance by Cruz Tempo      Score: 29.60  [very close energy], [acoustic preference match]
+#5  Electric Feel by Nova Pulse       Score: 29.20  [very close energy], [acoustic preference match]
+```
+
+### Profile 4 — Edge Case: Sad but Hype (conflicting preferences)
+```
+genre=electronic | mood=sad | energy=0.95 | acoustic=False
+
+#1  Electric Feel by Nova Pulse       Score: 68.20  [genre match], [very close energy], [acoustic preference match]
+#2  Gym Hero by Max Pulse             Score: 29.60  [very close energy], [acoustic preference match]
+#3  Iron Cathedral by Blackvein       Score: 29.60  [very close energy], [acoustic preference match]
+#4  Storm Runner by Voltline          Score: 29.20  [very close energy], [acoustic preference match]
+#5  Wildfire Dance by Cruz Tempo      Score: 28.60  [very close energy], [acoustic preference match]
+```
+*No song in the catalog has mood=sad, so the mood weight went entirely unused.*
+
+### Profile 5 — Edge Case: Acoustic Classical (niche)
+```
+genre=classical | mood=calm | energy=0.15 | acoustic=True
+
+#1  Pastel Afternoon by Yuki Mori     Score: 93.60  [genre match], [mood match], [very close energy], [acoustic preference match]
+#2  Spacewalk Thoughts by Orbit Bloom Score: 27.40  [very close energy], [acoustic preference match]
+#3  Library Rain by Paper Lanterns    Score: 26.00  [very close energy], [acoustic preference match]
+#4  Coffee Shop Stories by Slow Stereo Score: 25.60 [fairly close energy], [acoustic preference match]
+#5  Monsoon Letters by Arya Sen       Score: 25.20  [fairly close energy], [acoustic preference match]
+```
+*Only one classical song exists, so #2–5 scored only on energy + acoustic proximity — no genre or mood match.*
+
+---
+
+### Weight-Shift Experiment
+
+I tested halving the genre weight (40→20) and doubling the energy weight (20→40) for the High-Energy Pop profile:
+
+```
+EXPERIMENT: genre=20pts, energy=40pts (vs. original genre=40, energy=20)
+
+#1  Sunrise City        Score: 94.20  (unchanged at top — matches genre+mood+energy)
+#2  Rooftop Lights      Score: 73.40  (moved UP from #3 — better energy 0.76 vs target 0.8)
+#3  Gym Hero            Score: 64.80  (moved DOWN from #2 — energy 0.93 is further from 0.8)
+#4  Streetlight Hustle  Score: 49.60
+#5  Night Drive Loop    Score: 48.00
+```
+
+**Finding:** When energy is weighted higher, **Rooftop Lights** jumps above **Gym Hero** because its energy (0.76) is closer to the target (0.8) than Gym Hero's (0.93). This shows the genre weight was masking an energy mismatch in Gym Hero's ranking.
 
 ---
 

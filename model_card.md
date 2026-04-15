@@ -24,9 +24,9 @@ After every song receives a score, the recommender sorts the songs from highest 
 
 ## 4. Data
 
-The dataset contains **10 songs** in `data/songs.csv`. The catalog includes genres such as pop, lofi, rock, ambient, jazz, synthwave, and indie pop. The moods include happy, chill, intense, relaxed, focused, and moody.
+The dataset contains **18 songs** in `data/songs.csv`. The catalog includes genres such as pop, lofi, rock, ambient, jazz, synthwave, indie pop, r&b, latin, country, metal, classical, hip-hop, electronic, and world. The moods include happy, chill, intense, relaxed, focused, moody, romantic, energetic, melancholic, confident, euphoric, and nostalgic.
 
-I did not add or remove songs from the starter dataset. Because the dataset is tiny, it only reflects a narrow slice of musical taste. It does not include many cultural styles, languages, or niche genres, so the recommendations are limited by what is present in the file.
+The starter dataset was expanded from 10 to 18 songs to improve genre and mood diversity. However, most genres are still represented by only one or two songs, which means the system can still produce thin results for users whose tastes fall outside the two or three best-covered genres.
 
 ---
 
@@ -44,13 +44,25 @@ This recommender only uses a few features, so it ignores many things people care
 
 The dataset itself is small and uneven, so some genres or moods may be underrepresented. That means the system can accidentally favor the kinds of songs that appear more often in the dataset. If a real product used a narrow dataset like this, some users would receive weaker recommendations simply because their tastes were not well represented.
 
+A key weakness discovered during evaluation is that the genre weight (40 points) dominates the scoring so strongly that a perfect genre match alone pushes a song above all non-matching songs, even if its mood, energy, and acoustic qualities are a poor fit. For example, "Gym Hero" (pop, intense, energy=0.93) consistently ranks #2 for a pop/happy/energy=0.8 user, even though its mood is wrong and its energy overshoots the target by 0.13. The 40-point genre bonus makes up for both shortfalls. This creates a filter bubble where users who prefer a single genre will rarely see music from outside it, even when an out-of-genre song might actually feel closer to what they want. Additionally, the edge case test revealed that when a user requests a mood that has no matching songs in the catalog (such as "sad"), the mood weight contributes zero points to every song, effectively reducing the recommender to a three-feature system without any warning to the user.
+
 ---
 
 ## 7. Evaluation
 
-I evaluated the system by thinking through several user profiles and checking whether the top results matched common sense. For a pop, happy, high-energy user, I expected songs like **Sunrise City** and **Rooftop Lights** to score well. For a chill, more acoustic listener, I expected lofi and ambient tracks to feel more appropriate.
+I evaluated the system by running five distinct user profiles and checking whether the top results matched common sense.
 
-I also used the included tests to make sure the recommender returns results in sorted order and produces a non-empty explanation. I did not use a numeric metric, because the goal of this project was to understand the logic and behavior of the recommender rather than optimize benchmark performance.
+**High-Energy Pop (genre=pop, mood=happy, energy=0.8):** Sunrise City ranked #1 with a near-perfect score of 94.60, hitting all four scoring criteria. This matched expectations. Gym Hero ranked #2 because of the genre bonus despite a mismatched mood, which felt slightly off.
+
+**Chill Lofi (genre=lofi, mood=chill, energy=0.4, acoustic=True):** Both Midnight Coding and Library Rain scored in the mid-90s range. The top 3 were all lofi tracks, which felt very accurate to what this listener would want.
+
+**Deep Intense Rock (genre=rock, mood=intense, energy=0.9):** Storm Runner was the clear #1 and felt correct. The surprise was that only one rock song exists in the catalog, so #2 and #3 were pop and metal songs that shared only the "intense" mood.
+
+**Edge Case — Sad but Hype (genre=electronic, mood=sad, energy=0.95):** No song in the catalog has mood="sad", so the mood weight contributed zero points for every song. The system silently fell back to genre + energy scoring, and the results felt slightly random beyond the genre match. This exposed a real gap in the system.
+
+**Edge Case — Acoustic Classical (genre=classical, mood=calm, energy=0.15):** Only one classical song exists, so Pastel Afternoon was a runaway #1. The rest of the top 5 were unrelated acoustic songs that matched only on energy proximity. The sharp drop from #1 (93.60) to #2 (27.40) shows how thin single-genre coverage is.
+
+I also ran a weight-shift experiment (genre 40→20, energy 20→40) and found that Rooftop Lights jumped above Gym Hero because its energy is actually closer to 0.8. This confirmed that the high genre weight was masking an energy mismatch in the original ranking.
 
 ---
 
