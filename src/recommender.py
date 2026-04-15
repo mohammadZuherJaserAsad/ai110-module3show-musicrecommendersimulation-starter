@@ -37,6 +37,7 @@ def _closeness_score(value: float, target: float, max_points: float) -> float:
 
 
 def _song_to_dict(song: Song) -> Dict:
+    """Convert a Song dataclass instance into a plain dictionary."""
     return {
         "id": song.id,
         "title": song.title,
@@ -58,6 +59,7 @@ def _build_explanation(
     likes_acoustic: Optional[bool],
     song: Dict,
 ) -> str:
+    """Build a human-readable explanation string for why a song was recommended."""
     reasons: List[str] = []
 
     if user_genre and song["genre"].strip().lower() == user_genre.strip().lower():
@@ -88,9 +90,11 @@ class Recommender:
     """OOP implementation of the recommendation logic."""
 
     def __init__(self, songs: List[Song]):
+        """Initialize the recommender with a catalog of Song objects."""
         self.songs = songs
 
     def _score_song(self, user: UserProfile, song: Song) -> float:
+        """Compute a weighted relevance score for a single song against a UserProfile."""
         score = 0.0
 
         if song.genre.strip().lower() == user.favorite_genre.strip().lower():
@@ -112,6 +116,7 @@ class Recommender:
         return round(score, 4)
 
     def recommend(self, user: UserProfile, k: int = 5) -> List[Song]:
+        """Return the top-k Song objects sorted by descending relevance score."""
         ranked = sorted(
             self.songs,
             key=lambda song: self._score_song(user, song),
@@ -120,6 +125,7 @@ class Recommender:
         return ranked[:k]
 
     def explain_recommendation(self, user: UserProfile, song: Song) -> str:
+        """Return a human-readable explanation for why a song was recommended to a user."""
         return _build_explanation(
             user_genre=user.favorite_genre,
             user_mood=user.favorite_mood,

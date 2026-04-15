@@ -56,6 +56,46 @@ pip install -r requirements.txt
 python -m src.main
 ```
 
+### Sample Terminal Output
+
+Running `python -m src.main` with the default pop/happy profile produces:
+
+```
+Loaded songs: 18
+
+User profile: genre=pop | mood=happy | energy=0.8 | acoustic=False
+------------------------------------------------------------
+
+Top 5 Recommendations:
+
+#1  Sunrise City by Neon Echo
+     Score : 94.60
+     Reasons: [genre match], [mood match], [very close energy], [acoustic preference match]
+     Why   : Recommended because the genre matches your taste, the mood matches what you want, the energy level is very close to your preference, it is less acoustic and more polished/produced.
+
+#2  Gym Hero by Max Pulse
+     Score : 67.40
+     Reasons: [genre match], [very close energy], [acoustic preference match]
+     Why   : Recommended because the genre matches your taste, the energy level is reasonably close to your preference, it is less acoustic and more polished/produced.
+
+#3  Rooftop Lights by Indigo Parade
+     Score : 54.20
+     Reasons: [mood match], [very close energy], [acoustic preference match]
+     Why   : Recommended because the mood matches what you want, the energy level is very close to your preference, it is less acoustic and more polished/produced.
+
+#4  Streetlight Hustle by DAZE
+     Score : 29.80
+     Reasons: [very close energy], [acoustic preference match]
+     Why   : Recommended because the energy level is very close to your preference, it is less acoustic and more polished/produced.
+
+#5  Night Drive Loop by Neon Echo
+     Score : 29.00
+     Reasons: [very close energy], [acoustic preference match]
+     Why   : Recommended because the energy level is very close to your preference, it is less acoustic and more polished/produced.
+```
+
+---
+
 ### Running Tests
 
 Run the tests with:
