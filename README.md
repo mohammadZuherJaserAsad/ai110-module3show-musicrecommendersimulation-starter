@@ -6,6 +6,24 @@ In this project, I built a small music recommender that simulates how a simple c
 
 ---
 
+## Data Flow
+
+```mermaid
+flowchart TD
+    A([User Preferences\ngenre · mood · energy · acoustic]) --> B[Load songs.csv\n18 songs]
+    B --> C{For each song in catalog}
+    C --> D1[Genre match?\n+40 pts]
+    C --> D2[Mood match?\n+25 pts]
+    C --> D3[Energy closeness\nup to +20 pts]
+    C --> D4[Acoustic preference match?\n+10 pts]
+    D1 & D2 & D3 & D4 --> E[Total Score per Song]
+    E --> C
+    C --> F[Sort all songs\nhighest score first]
+    F --> G([Top K Recommendations\nwith explanations])
+```
+
+---
+
 ## How The System Works
 
 Real-world recommendation systems often combine collaborative filtering and content-based filtering. Collaborative filtering uses the behavior of many users, such as likes, skips, playlists, and replay history, to find patterns. Content-based filtering focuses on the features of the item itself, such as genre, mood, energy, or tempo. This project uses a content-based approach because it is easier to understand and fits the small classroom dataset.
